@@ -24,6 +24,7 @@ import Header from "@/components/Header";
 import ConsultationsViewTable from "@/components/ConsultationsViewTable";
 import SockJS from "sockjs-client";
 import Stomp from "webstomp-client";
+import router from "@/router";
 
 export default {
   name: "Doctor",
@@ -56,10 +57,16 @@ export default {
     },
   },
   async created() {
-    let date = new Date();
-    let dateString = date.getFullYear() + "-" + (date.getMonth() + 1 < 10 ? "0"+ (date.getMonth() + 1) : (date.getMonth() + 1)) + "-" + (date.getDate() < 10 ? "0"+ date.getDate() : date.getDate());
-    this.consultations = await api.consultations.getAllByDateAndDoctor(dateString, this.$store.state.auth.user.id);
-    this.connectAndSubscribe();
+    if(this.$store.state.auth.user.role !== "DOCTOR") {
+      await this.$store.dispatch("auth/logout");
+      await router.push("/");
+    }
+    else {
+      let date = new Date();
+      let dateString = date.getFullYear() + "-" + (date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1)) + "-" + (date.getDate() < 10 ? "0" + date.getDate() : date.getDate());
+      this.consultations = await api.consultations.getAllByDateAndDoctor(dateString, this.$store.state.auth.user.id);
+      this.connectAndSubscribe();
+    }
   }
 }
 </script>

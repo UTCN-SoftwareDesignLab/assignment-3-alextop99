@@ -28,6 +28,7 @@ import PatientTable from "@/components/PatientTable";
 import api from "@/api";
 import Header from "@/components/Header";
 import ConsultationsTable from "@/components/ConsultationsTable";
+import router from "@/router";
 
 export default {
   name: "Secretary",
@@ -51,10 +52,16 @@ export default {
     },
   },
   async created() {
-    this.patients = await api.patients.getAll();
-    this.doctors = await api.users.getAllDoctors();
-    this.consultations = await api.consultations.getAll();
-    this.connected = api.webSocket.connect();
+    if(this.$store.state.auth.user.role !== "SECRETARY") {
+      await this.$store.dispatch("auth/logout");
+      await router.push("/");
+    }
+    else {
+      this.patients = await api.patients.getAll();
+      this.doctors = await api.users.getAllDoctors();
+      this.consultations = await api.consultations.getAll();
+      this.connected = api.webSocket.connect();
+    }
   }
 }
 </script>
